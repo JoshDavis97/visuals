@@ -31,12 +31,25 @@ def play_random_video(directory):
 			cap = cv2.VideoCapture(filename)
 
 			if not cap.isOpened():
-				print("Error opening video  file")
+				logging.error("error opening video file")
 
+			width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+			height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
 			fps = cap.get(cv2.CAP_PROP_FPS)
 			frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
 			video_length = frame_count/30
-			logging.debug(video_length)
+
+			logging.debug(
+				"filename={},width={},height={},fps={},frame_count={},video_length={}s".format(
+					filename,
+					width,
+					height,
+					fps,
+					frame_count,
+					video_length,
+				)
+			)
+
 			while(cap.isOpened()):
 				ret, frame = cap.read()
 
