@@ -71,7 +71,7 @@ def play_video_clip(filename, length):
 				cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_index) #set current position of video to the random start frame
 
 			logging.debug(
-				"filename={}, width={}, height={}, fps={:.2f}, frame_count={}, video_length={:.2f}s, start_frame_index={}, end_frame_index={}, max_frame_index={}".format(
+				"playing video: filename={}, width={}, height={}, fps={:.2f}, frame_count={}, video_length={:.2f}s, start_frame_index={}, end_frame_index={}, max_frame_index={}".format(
 					filename,
 					width,
 					height,
@@ -112,13 +112,16 @@ def main():
 	init_logging(args.logging_level)
 	logging.debug(args)
 
-	while True:
-		logging.debug("building paths list")
-		paths = list(get_absolute_paths(args.directory))
-		random.shuffle(paths)
+	paths = list(get_absolute_paths(args.directory))
+	random_index = random.randint(0, len(paths)-1)
+	last_index = None
 
-		for path in paths:
-			play_video_clip(path, args.seconds)
+	while True:
+		while random_index == last_index:
+			random_index = random.randint(0, len(paths)-1)
+
+		play_video_clip(paths[random_index], args.seconds)
+		last_index = random_index
 
 	cv2.destroyAllWindows()
 
