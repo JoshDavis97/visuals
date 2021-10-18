@@ -34,17 +34,7 @@ def play_video_clip(filename, length):
 			video_length = frame_count/fps
 			start_frame_index = 0
 			end_frame_index = frame_count
-
-			logging.debug(
-				"filename={},width={},height={},fps={},frame_count={},video_length={}s".format(
-					filename,
-					width,
-					height,
-					fps,
-					frame_count,
-					video_length,
-				)
-			)
+			max_frame_index = None
 
 			if video_length > length: #only skip to a random section if vid is longer than the defined clip length
 				max_frame_index = int(frame_count - (fps*length)) #max frame index we can start video from, so it doesn't go over the actual video length
@@ -52,20 +42,26 @@ def play_video_clip(filename, length):
 				end_frame_index = start_frame_index + (length * fps)
 				cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_index) #set current position of video to the random start frame
 
-				logging.debug(
-					"start_frame_index={},end_frame_index={},max_frame_index={}".format(
-						start_frame_index,
-						end_frame_index,
-						max_frame_index,
-					)
+			logging.debug(
+				"filename={},width={},height={},fps={},frame_count={},video_length={}s,start_frame_index={},end_frame_index={},max_frame_index={}".format(
+					filename,
+					width,
+					height,
+					fps,
+					frame_count,
+					video_length,
+					start_frame_index,
+					end_frame_index,
+					max_frame_index,
 				)
+			)
 
 			while(cap.isOpened()):
 				ret, frame = cap.read()
-
+				current_frame_index = cap.get(cv2.CAP_PROP_POS_FRAMES)
 				#logging.debug(cap.get(cv2.CAP_PROP_POS_FRAMES))
 
-				if ret == True and cap.get(cv2.CAP_PROP_POS_FRAMES) <= end_frame_index:
+				if ret == True and current_frame_index <= end_frame_index:
 					capsize = cv2.resize(frame, (800,600))
 					cv2.imshow('Frame', capsize)
 
@@ -87,7 +83,7 @@ def main():
 		list = os.listdir(directory)
 		random.shuffle(list)
 		for filename in list:
-			play_video_clip(filename, 5)
+			play_video_clip(filename, 15)
 
 	cv2.destroyAllWindows()
 
