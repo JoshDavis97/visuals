@@ -71,7 +71,7 @@ def play_video_clip(filename, length):
 				cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_index) #set current position of video to the random start frame
 
 			logging.debug(
-				"filename={},width={},height={},fps={:.2f},frame_count={},video_length={:.2f}s,start_frame_index={},end_frame_index={},max_frame_index={}".format(
+				"filename={}, width={}, height={}, fps={:.2f}, frame_count={}, video_length={:.2f}s, start_frame_index={}, end_frame_index={}, max_frame_index={}".format(
 					filename,
 					width,
 					height,
@@ -87,11 +87,10 @@ def play_video_clip(filename, length):
 			while(cap.isOpened()):
 				ret, frame = cap.read()
 				current_frame_index = cap.get(cv2.CAP_PROP_POS_FRAMES)
-				#logging.debug(cap.get(cv2.CAP_PROP_POS_FRAMES))
 
 				if ret == True and current_frame_index <= end_frame_index:
 					capsize = cv2.resize(frame, (800,600))
-					cv2.imshow('Frame', capsize)
+					cv2.imshow('visuals.py', capsize)
 
 					if cv2.waitKey(25) & 0xFF == ord('q'):
 						break
@@ -111,8 +110,10 @@ def get_absolute_paths(directory):
 def main():
 	args = get_args()
 	init_logging(args.logging_level)
+	logging.debug(args)
 
 	while True:
+		logging.debug("building paths list")
 		paths = list(get_absolute_paths(args.directory))
 		random.shuffle(paths)
 
