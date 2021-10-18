@@ -1,5 +1,33 @@
-import os, random, logging, sys
+import os, random, logging, sys, argparse
 import cv2
+
+def get_args():
+	parser = argparse.ArgumentParser(description='plays random videos from a directory, from a random frame, for a given number of seconds.')
+	parser.add_argument(
+		"directory",
+		metavar = "DIRECTORY",
+		type = str,
+		help = "the directory to play videos from",
+	)
+
+	parser.add_argument(
+		"-s",
+		"--seconds",
+		metavar = "SECONDS",
+		type = int,
+		default = 15,
+		help = "number of seconds to play each clip for, defaults to '15'",
+	)
+
+	parser.add_argument(
+		"-l",
+		"--logging-level",
+		choices=["debug", "info", "warning", "error", "critical"],
+		default="debug",
+		help="logging level, defaults to 'debug'",
+	)
+
+	return parser.parse_args()
 
 def init_logging(logging_level):
 	logging_levels = {
@@ -39,11 +67,11 @@ def play_video_clip(filename, length):
 			if video_length > length: #only skip to a random section if vid is longer than the defined clip length
 				max_frame_index = int(frame_count - (fps*length)) #max frame index we can start video from, so it doesn't go over the actual video length
 				start_frame_index = random.randint(0, max_frame_index) #get a random frame to start from
-				end_frame_index = start_frame_index + (length * fps)
+				end_frame_index = int(start_frame_index + (length * fps))
 				cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_index) #set current position of video to the random start frame
 
 			logging.debug(
-				"filename={},width={},height={},fps={},frame_count={},video_length={}s,start_frame_index={},end_frame_index={},max_frame_index={}".format(
+				"filename={},width={},height={},fps={:.2f},frame_count={},video_length={:.2f}s,start_frame_index={},end_frame_index={},max_frame_index={}".format(
 					filename,
 					width,
 					height,
@@ -73,17 +101,23 @@ def play_video_clip(filename, length):
 
 			cap.release()
 		else:
-			logging.error("error opening video file")
+			logging.error("error opening file '{}'".format(filename))
+
+def get_absolute_paths(directory):
+    for dirpath,_,filenames in os.walk(directory):
+        for f in filenames:
+            yield os.path.abspath(os.path.join(dirpath, f))
 
 def main():
-	init_logging("debug")
-	directory = os.path.dirname(os.path.abspath( __file__ ))
+	args = get_args()
+	init_logging(args.logging_level)
 
 	while True:
-		list = os.listdir(directory)
-		random.shuffle(list)
-		for filename in list:
-			play_video_clip(filename, 15)
+		paths = list(get_absolute_paths(args.directory))
+		random.shuffle(paths)
+
+		for path in paths:
+			play_video_clip(path, args.seconds)
 
 	cv2.destroyAllWindows()
 
