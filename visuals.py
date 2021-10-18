@@ -32,7 +32,8 @@ def play_video_clip(filename, length):
 			fps = cap.get(cv2.CAP_PROP_FPS)
 			frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
 			video_length = frame_count/fps
-			starting_frame_index = 0
+			start_frame_index = 0
+			end_frame_index = frame_count
 
 			logging.debug(
 				"filename={},width={},height={},fps={},frame_count={},video_length={}s".format(
@@ -46,16 +47,26 @@ def play_video_clip(filename, length):
 			)
 
 			if video_length > length: #only skip to a random section if vid is longer than the defined clip length
-				max_frame_index = frame_count - (fps*length) #max frame index we can start video from, so it doesn't go over the actual video length
-				starting_frame_index = random.randint(0, max_frame_index) #get a random frame to start from
-				cap.set(cv2.CAP_PROP_POS_FRAMES, starting_frame_index) #set current position of video to the random start frame
-				logging.debug("starting_frame_index={},max_frame_index={}".format(starting_frame_index, max_frame_index))
+				max_frame_index = int(frame_count - (fps*length)) #max frame index we can start video from, so it doesn't go over the actual video length
+				start_frame_index = random.randint(0, max_frame_index) #get a random frame to start from
+				end_frame_index = start_frame_index + (length * fps)
+				cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_index) #set current position of video to the random start frame
+
+				logging.debug(
+					"start_frame_index={},end_frame_index={},max_frame_index={}".format(
+						start_frame_index,
+						end_frame_index,
+						max_frame_index,
+					)
+				)
 
 			while(cap.isOpened()):
 				ret, frame = cap.read()
 
-				if ret == True:
-					capsize = cv2.resize(frame, (1920,1080))
+				#logging.debug(cap.get(cv2.CAP_PROP_POS_FRAMES))
+
+				if ret == True and cap.get(cv2.CAP_PROP_POS_FRAMES) <= end_frame_index:
+					capsize = cv2.resize(frame, (800,600))
 					cv2.imshow('Frame', capsize)
 
 					if cv2.waitKey(25) & 0xFF == ord('q'):
@@ -76,7 +87,7 @@ def main():
 		list = os.listdir(directory)
 		random.shuffle(list)
 		for filename in list:
-			play_video_clip(filename, 30)
+			play_video_clip(filename, 5)
 
 	cv2.destroyAllWindows()
 
