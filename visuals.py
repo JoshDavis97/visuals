@@ -50,10 +50,8 @@ def init_logging(logging_level):
 
 	logging.debug("loaded logging")
 
-def play_video_clip(filename, length):
-	window_name = "visuals.py"
-	cv2.namedWindow(window_name, cv2.WND_PROP_FULLSCREEN)
-	cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+def play_video_clip(filename, length, window_name):
+
 	if ".mp4" in filename:
 		cap = cv2.VideoCapture(filename)
 
@@ -119,11 +117,15 @@ def main():
 	random_index = random.randint(0, len(paths)-1)
 	last_index = None
 
+	window_name = "visuals.py"
+	cv2.namedWindow(window_name, cv2.WND_PROP_FULLSCREEN)
+	cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
 	while True:
 		while random_index == last_index:
 			random_index = random.randint(0, len(paths)-1)
 
-		play_video_clip(paths[random_index], args.seconds)
+		play_video_clip(paths[random_index], args.seconds, window_name)
 		last_index = random_index
 
 	cv2.destroyAllWindows()
