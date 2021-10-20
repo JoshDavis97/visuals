@@ -51,6 +51,9 @@ def init_logging(logging_level):
 	logging.debug("loaded logging")
 
 def play_video_clip(filename, length):
+	window_name = "visuals.py"
+	cv2.namedWindow(window_name, cv2.WND_PROP_FULLSCREEN)
+	cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 	if ".mp4" in filename:
 		cap = cv2.VideoCapture(filename)
 
@@ -89,8 +92,8 @@ def play_video_clip(filename, length):
 				current_frame_index = cap.get(cv2.CAP_PROP_POS_FRAMES)
 
 				if ret == True and current_frame_index <= end_frame_index:
-					capsize = cv2.resize(frame, (800,600))
-					cv2.imshow('visuals.py', capsize)
+					#capsize = cv2.resize(frame, (1280,720))
+					cv2.imshow(window_name, frame)
 
 					if cv2.waitKey(25) & 0xFF == ord('q'):
 						break
